@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ASCII Video</title>
+
+<style>
+body{
+background:black;
+margin:0;
+overflow:hidden;
+}
+
+pre{
+font-size:6px;
+line-height:6px;
+font-family:monospace;
+color:white;
+white-space:pre;
+}
+
+video{
+display:none;
+}
+</style>
+</head>
+
+<body>
+
+<video id="video" autoplay loop muted playsinline>
+<source src="video.mp4" type="video/mp4">
+</video>
+
+<canvas id="canvas"></canvas>
+<pre id="ascii"></pre>
+
+<script>
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const ascii = document.getElementById("ascii");
+
+const chars = "@#W$9876543210?!abc;:+=-,._ ";
+
+video.addEventListener("play", () => {
+
+function render(){
+
+canvas.width = 120;
+canvas.height = 70;
+
+ctx.drawImage(video,0,0,canvas.width,canvas.height);
+
+const frame = ctx.getImageData(
+0,0,
+canvas.width,
+canvas.height
+);
+
+let text = "";
+
+for(let y=0;y<frame.height;y++){
+
+for(let x=0;x<frame.width;x++){
+
+const i = (y * frame.width + x) * 4;
+
+const r = frame.data[i];
+const g = frame.data[i+1];
+const b = frame.data[i+2];
+
+const brightness = (r+g+b)/3;
+
+const index = Math.floor(
+(brightness/255)*(chars.length-1)
+);
+
+text += chars[index];
+}
+
+text += "\n";
+}
+
+ascii.textContent = text;
+
+requestAnimationFrame(render);
+}
+
+render();
+
+});
+</script>
+
+</body>
+</html>
